@@ -11,7 +11,7 @@ const Nft = ({ nft, buyNft }) => {
   const { kit } = useContractKit();
   const { defaultAccount } = kit;
 
-  const displayButtonFunction = (isSold, buyNft) => {
+  const buttonFunc = (isSold, buyNft) => {
     if(isSold) {
       return <>
         <button
@@ -65,7 +65,7 @@ const Nft = ({ nft, buyNft }) => {
               </button>
             </>
           ) : (
-            displayButtonFunction(isSold, buyNft)
+            buttonFunc(isSold, buyNft)
           )}
         </Card.Body>
       </Card>

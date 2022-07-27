@@ -11,26 +11,15 @@ const Nft = ({ nft, buyNft }) => {
   const { kit } = useContractKit();
   const { defaultAccount } = kit;
 
-  const buttonFunc = (isSold, buyNft) => {
-    if(isSold) {
-      return <>
-        <button
-          className="sold_nft"
-        >
-          Sold
-        </button>
-      </>
+  const buttonFunc = (isSold, buyNft, owner, defaultAccount) => {
+    let btnText;
+    if(owner !== defaultAccount) {
+      isSold ? btnText = <button className="sold_nft">Sold</button> : btnText = <button className="buy_nft" onClick={buyNft}>Buy</button>
     }
-    else if(!isSold) {
-        return <>
-          <button
-            className="buy_nft"
-            onClick={buyNft}
-          >
-            Buy
-          </button>
-        </>
+    else {
+      btnText = <button className="owned_nft">Owned</button>
     }
+    return <>{btnText}</>
   }
 
   return (
@@ -58,15 +47,7 @@ const Nft = ({ nft, buyNft }) => {
           <div>
           
           </div>
-          {owner === defaultAccount ? (
-            <>
-              <button className="owned_nft">
-                Owned
-              </button>
-            </>
-          ) : (
-            buttonFunc(isSold, buyNft)
-          )}
+          {buttonFunc(isSold, buyNft, owner, defaultAccount)}
         </Card.Body>
       </Card>
     </Col>

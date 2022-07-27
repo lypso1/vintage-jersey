@@ -9,7 +9,6 @@ button {
   border: none;
   padding: 10px 20px;
   min-width: 100px;
-  cursor: pointer;
 }
 
 /* Cover JS */
@@ -58,10 +57,11 @@ button {
 .buy_nft {
   border-radius: 8px;
   margin: 0px auto;
+  cursor: pointer;
 }
 .sold_nft {
   border-radius: 8px;
-  background-color: #ff00008c;
+  background-color: #ff0000a8;
   cursor: none;
 }
 .owned_nft {

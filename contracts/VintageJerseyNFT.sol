@@ -29,7 +29,7 @@ contract VintageJerseyNFT is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable
 
     function createToken(string memory uri, uint256 _tokenId) internal returns (uint256) {
 
-        require(_tokenId == jerseys[_tokenId].tokenId , "Sorry, no image with this ID was found");
+        require(_tokenId == jerseys[_tokenId].tokenId , "Sorry, no image with this token ID was found");
         require(msg.sender == jerseys[_tokenId].owner, "Sorry, only the owner of this NFT can mint this NFT");
 
         uint256 tokenId = jerseys[_tokenId].tokenId;

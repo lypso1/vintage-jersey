@@ -29,17 +29,18 @@ contract VintageJerseyNFT is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable
 
     function createToken(string memory uri, uint256 _tokenId) internal returns (uint256) {
 
-        require(_tokenId == jerseys[_tokenId].tokenId , "Sorry, no image with this token ID was found");
-        require(msg.sender == jerseys[_tokenId].owner, "Sorry, only the owner of this NFT can mint this NFT");
+        require(_tokenId == jerseys[_tokenId].tokenId , "Sorry, no image with this token ID was found");    // token ID must exist before it can be minted
+        require(msg.sender == jerseys[_tokenId].owner, "Sorry, only the owner of this NFT can mint this NFT");  // only the owner of a jersey can mint the jersey
 
         uint256 tokenId = jerseys[_tokenId].tokenId;
 
-        _safeMint(msg.sender, tokenId);
-        _setTokenURI(tokenId, uri);
+        _safeMint(msg.sender, tokenId); //minting the jersey
+        _setTokenURI(tokenId, uri); //creating a url using the token ID and the uri provided
 
         return tokenId;
     }
 
+// function to upload a jersey
     function uploadJersey(
         string memory _name,
         string memory _image,
@@ -49,8 +50,8 @@ contract VintageJerseyNFT is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable
     ) public {
         require(_price > 0, "Price must be at least 1");
 
-        uint256 _tokenId = count.current();
-        bool _isSold = false;
+        uint256 _tokenId = count.current(); //initializing the token ID to the current count
+        bool _isSold = false;   //initializing the value of isSold to false for newly uploaded jerseys
 
         jerseys[jerseyLength] =  NewJersey(
             payable(msg.sender),
@@ -62,32 +63,34 @@ contract VintageJerseyNFT is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable
             _isSold
         );
 
-        createToken(_uri, _tokenId);
+        createToken(_uri, _tokenId);    //minting the jersey as soon as it is uploaded by calling the createToken function
         
         jerseyLength ++;
         count.increment();
     }
 
+// function to buy a jersey using a token ID
     function buyJersey(
         uint256 _tokenId
     ) public payable {
-        uint256 _jerseyPrice = jerseys[_tokenId].price;
-        bool _isSold = jerseys[_tokenId].isSold;
+        uint256 _jerseyPrice = jerseys[_tokenId].price; //assigning the NFT price to a variable
+        bool _isSold = jerseys[_tokenId].isSold;    //assigning the NFT isSold property to a variable
 
-        require(msg.value >= _jerseyPrice, "Please submit the asking price in order to complete the purchase");
-        require(msg.sender != jerseys[_tokenId].owner, "Sorry, you can't buy your uploaded jersey");
-        require(!_isSold, "Item already sold");
-        require(_tokenId == jerseys[_tokenId].tokenId, "Oops...NFT does not exist");
+        require(msg.value >= _jerseyPrice, "Please submit the asking price in order to complete the purchase"); // price of the NFT must be met
+        require(msg.sender != jerseys[_tokenId].owner, "Sorry, you can't buy your uploaded jersey");    // the buyer must not be the owner
+        require(!_isSold, "Item already sold"); //item must be available for sale
+        require(_tokenId == jerseys[_tokenId].tokenId, "Oops...NFT does not exist");    //item must exist
 
         address _owner = ownerOf(_tokenId);
-        _transfer(_owner, msg.sender, _tokenId);
+        _transfer(_owner, msg.sender, _tokenId);    //transfering ownership of the NFT to the buyer
         
-        jerseys[_tokenId].owner.transfer(msg.value);
+        jerseys[_tokenId].owner.transfer(msg.value);    //tranfering money to the seller of the NFT
 
-        jerseys[_tokenId].owner = payable(msg.sender);
-        jerseys[_tokenId].isSold = true;
+        jerseys[_tokenId].owner = payable(msg.sender);  //changing the owner variable of the NFT to the buyer
+        jerseys[_tokenId].isSold = true;    // setting isSold to true
     }
 
+// function to get the jerseys uploaded using its index
     function readJersey(uint256 _index) public view returns (
         address payable,
         string memory,
@@ -108,10 +111,12 @@ contract VintageJerseyNFT is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable
         );
     }
 
+// getting the length of jerseys uploaded
     function getJerseyLength() public view returns (uint256) {
         return jerseyLength;
     }
 
+// returuning the value of isSold as a function
     function isSold(uint256 _index) public view returns (bool) {
         return jerseys[_index].isSold;
     }

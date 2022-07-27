@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/vintage-jersey/static/css/main.1b8e1117.chunk.css",
+    "main.js": "/vintage-jersey/static/js/main.bb8d0b86.chunk.js",
+    "main.js.map": "/vintage-jersey/static/js/main.bb8d0b86.chunk.js.map",
+    "runtime-main.js": "/vintage-jersey/static/js/runtime-main.9dd80ac2.js",
+    "runtime-main.js.map": "/vintage-jersey/static/js/runtime-main.9dd80ac2.js.map",
+    "static/css/2.ae44a4ca.chunk.css": "/vintage-jersey/static/css/2.ae44a4ca.chunk.css",
+    "static/js/2.739e88dc.chunk.js": "/vintage-jersey/static/js/2.739e88dc.chunk.js",
+    "static/js/2.739e88dc.chunk.js.map": "/vintage-jersey/static/js/2.739e88dc.chunk.js.map",
+    "static/js/3.e8cd881b.chunk.js": "/vintage-jersey/static/js/3.e8cd881b.chunk.js",
+    "static/js/3.e8cd881b.chunk.js.map": "/vintage-jersey/static/js/3.e8cd881b.chunk.js.map",
+    "index.html": "/vintage-jersey/index.html",
+    "static/css/2.ae44a4ca.chunk.css.map": "/vintage-jersey/static/css/2.ae44a4ca.chunk.css.map",
+    "static/css/main.1b8e1117.chunk.css.map": "/vintage-jersey/static/css/main.1b8e1117.chunk.css.map",
+    "static/js/2.739e88dc.chunk.js.LICENSE.txt": "/vintage-jersey/static/js/2.739e88dc.chunk.js.LICENSE.txt",
+    "static/media/bootstrap-icons.css": "/vintage-jersey/static/media/bootstrap-icons.c1d7432e.woff"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.9dd80ac2.js",
+    "static/css/2.ae44a4ca.chunk.css",
+    "static/js/2.739e88dc.chunk.js",
+    "static/css/main.1b8e1117.chunk.css",
+    "static/js/main.bb8d0b86.chunk.js"
+  ]
+}

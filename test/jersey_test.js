@@ -8,6 +8,7 @@ describe("VintageJerseyNFT", function () {
   let owner;
   let acc1;
   // let acc2;
+  const price = ethers.utils.parseUnits("1");
 
   this.beforeEach(async function () {
     // This is executed before each test
@@ -26,7 +27,7 @@ describe("VintageJerseyNFT", function () {
     expect(await jerseyNFT.balanceOf(acc1.address)).to.equal(0);
 
     const tokenURI = "https://example.com/1";
-    const tx = await jerseyNFT.connect(owner).createToken(tokenURI);
+    const tx = await jerseyNFT.connect(acc1).uploadJersey(tokenURI,price);
     await tx.wait();
 
     expect(await jerseyNFT.balanceOf(acc1.address)).to.equal(1);
@@ -36,9 +37,9 @@ describe("VintageJerseyNFT", function () {
     const tokenURI_1 = "https://example.com/1";
     const tokenURI_2 = "https://example.com/2";
 
-    const tx1 = await jerseyNFT.connect(owner).createToken(tokenURI_1);
+    const tx1 = await jerseyNFT.connect(owner).uploadJersey(tokenURI_1,price);
     await tx1.wait();
-    const tx2 = await jerseyNFT.connect(owner).createToken(tokenURI_2);
+    const tx2 = await jerseyNFT.connect(owner).uploadJersey(tokenURI_2,price);
     await tx2.wait();
 
     expect(await jerseyNFT.tokenURI(0)).to.equal(tokenURI_1);

@@ -1,19 +1,16 @@
 import PropTypes from "prop-types";
-import { useContractKit } from "@celo-tools/use-contractkit";
 import { Card, Col, Badge, Stack } from "react-bootstrap";
 import { truncateAddress } from "../../../utils";
 import Identicon from "../../ui/Identicon";
-
+import { ERC20_DECIMALS } from "../../../utils/constants";
 
 // NFT Cards Functionality
-const Nft = ({ nft, buyNft }) => {
+const Nft = ({ nft, buyNft, address }) => {
   const { image, description, owner, name, tokenId, price, isSold } = nft;
-  const { kit } = useContractKit();
-  const { defaultAccount } = kit;
 
-  const buttonFunc = (isSold, buyNft, owner, defaultAccount) => {
+  const buttonFunc = (isSold, buyNft, owner, address) => {
     let btnText;
-    if(owner !== defaultAccount) {
+    if(owner !== address) {
       isSold ? btnText = <button className="sold_nft">Sold</button> : btnText = <button className="buy_nft" onClick={buyNft}>Buy</button>
     }
     else {
@@ -32,7 +29,7 @@ const Nft = ({ nft, buyNft }) => {
               {truncateAddress(owner)}
             </span>
             <Badge className="card_price ms-auto px-3 py-2">
-              {price / 10 ** 18} cUSD
+              {price / (10 ** ERC20_DECIMALS)} CELO
             </Badge>
           </Stack>
         </Card.Header>
@@ -47,7 +44,7 @@ const Nft = ({ nft, buyNft }) => {
           <div>
           
           </div>
-          {buttonFunc(isSold, buyNft, owner, defaultAccount)}
+          {buttonFunc(isSold, buyNft, owner, address)}
         </Card.Body>
       </Card>
     </Col>

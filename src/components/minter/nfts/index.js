@@ -103,6 +103,7 @@ const NftList = ({ minterContract, name }) => {
                   nft={{
                     ..._nft,
                   }}
+                  address={address}
                 />
               ))}
             </Row>

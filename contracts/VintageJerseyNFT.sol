@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.2;
+pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
@@ -7,121 +7,108 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract VintageJerseyNFT is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
+contract VintageJerseyNFT is
+    ERC721,
+    ERC721Enumerable,
+    ERC721URIStorage,
+    Ownable
+{
     constructor() ERC721("VintageJerseyNFT", "VJNFT") {}
 
     using Counters for Counters.Counter;
 
-    Counters.Counter private count;
-    uint256 internal jerseyLength = 0;
+    Counters.Counter private _jerseyIdCounter;
 
     struct NewJersey {
         address payable owner;
-        string name;
-        string image;
-        string description;
-        uint256 tokenId;
         uint256 price;
         bool isSold;
     }
 
-    mapping(uint256 => NewJersey) internal jerseys;
+    mapping(uint256 => NewJersey) private jerseys;
 
-    function createToken(string memory uri, uint256 _tokenId) internal returns (uint256) {
-
-        require(_tokenId == jerseys[_tokenId].tokenId , "Sorry, no image with this token ID was found");    // token ID must exist before it can be minted
-        require(msg.sender == jerseys[_tokenId].owner, "Sorry, only the owner of this NFT can mint this NFT");  // only the owner of a jersey can mint the jersey
-
-        uint256 tokenId = jerseys[_tokenId].tokenId;
-
-        _safeMint(msg.sender, tokenId); //minting the jersey
-        _setTokenURI(tokenId, uri); //creating a url using the token ID and the uri provided
-
-        return tokenId;
+    modifier exist(uint256 _tokenId) {
+        require(_exists(_tokenId), "Query of non existent jersey");
+        _;
     }
 
-// function to upload a jersey
-    function uploadJersey(
-        string memory _name,
-        string memory _image,
-        string memory _description,
-        string memory _uri,
-        uint256 _price
-    ) public {
-        require(_price > 0, "Price must be at least 1");
 
-        uint256 _tokenId = count.current(); //initializing the token ID to the current count
-        bool _isSold = false;   //initializing the value of isSold to false for newly uploaded jerseys
+    modifier checkPrice(uint _price){
+          require(_price > 0, "Price must be at least 1");
+          _;
+    }
 
-        jerseys[jerseyLength] =  NewJersey(
+    /// @dev function to upload a jersey
+    function uploadJersey(string calldata _uri, uint256 _price) external checkPrice(_price) {
+        require(bytes(_uri).length > 0, "Empty uri");
+        uint256 _tokenId = _jerseyIdCounter.current(); //initializing the token ID to the current count
+        _jerseyIdCounter.increment();
+
+        jerseys[_tokenId] = NewJersey(
             payable(msg.sender),
-            _name,
-            _image,
-            _description,
-            _tokenId,
             _price,
-            _isSold
+            false //initializing the value of isSold to false for newly uploaded jerseys
         );
-
-        createToken(_uri, _tokenId);    //minting the jersey as soon as it is uploaded by calling the createToken function
-        
-        jerseyLength ++;
-        count.increment();
+        _safeMint(msg.sender, _tokenId); //minting the jersey
+        _setTokenURI(_tokenId, _uri); //creating a url using the token ID and the uri provided
     }
 
-// function to buy a jersey using a token ID
-    function buyJersey(
-        uint256 _tokenId
-    ) public payable {
+    /// @dev function to buy a jersey using a token ID
+    function buyJersey(uint256 _tokenId) external payable exist(_tokenId)  {
         uint256 _jerseyPrice = jerseys[_tokenId].price; //assigning the NFT price to a variable
-        bool _isSold = jerseys[_tokenId].isSold;    //assigning the NFT isSold property to a variable
-
-        require(msg.value >= _jerseyPrice, "Please submit the asking price in order to complete the purchase"); // price of the NFT must be met
-        require(msg.sender != jerseys[_tokenId].owner, "Sorry, you can't buy your uploaded jersey");    // the buyer must not be the owner
+        bool _isSold = jerseys[_tokenId].isSold; //assigning the NFT isSold property to a variable
         require(!_isSold, "Item already sold"); //item must be available for sale
-        require(_tokenId == jerseys[_tokenId].tokenId, "Oops...NFT does not exist");    //item must exist
+        require(
+            msg.value == _jerseyPrice,
+            "Please submit the asking price in order to complete the purchase"
+        ); // price of the NFT must be met
+        require(
+            msg.sender != jerseys[_tokenId].owner,
+            "Sorry, you can't buy your uploaded jersey"
+        ); // the buyer must not be the owner
 
-        address _owner = ownerOf(_tokenId);
-        _transfer(_owner, msg.sender, _tokenId);    //transfering ownership of the NFT to the buyer
-        
-        jerseys[_tokenId].owner.transfer(msg.value);    //tranfering money to the seller of the NFT
-
-        jerseys[_tokenId].owner = payable(msg.sender);  //changing the owner variable of the NFT to the buyer
-        jerseys[_tokenId].isSold = true;    // setting isSold to true
+        address _owner = jerseys[_tokenId].owner;
+        jerseys[_tokenId].owner = payable(msg.sender); //changing the owner variable of the NFT to the buyer
+        jerseys[_tokenId].isSold = true; // setting isSold to true
+        jerseys[_tokenId].price = 0;
+        (bool success, ) = payable(_owner).call{value: _jerseyPrice}(""); //tranfering money to the seller of the NFT
+        require(success, "Payment for jersey failed");
+        _transfer(_owner, msg.sender, _tokenId); //transfering ownership of the NFT to the buyer
     }
 
-// function to get the jerseys uploaded using its index
-    function readJersey(uint256 _index) public view returns (
-        address payable,
-        string memory,
-        string memory,
-        string memory,
-        uint256,
-        uint256,
-        bool
-    ) {
+    /// @dev function to put a jersey on sale
+    function sellJersey(uint256 _tokenId, uint256 _price) external exist(_tokenId) checkPrice(_price) {
+        require(jerseys[_tokenId].isSold, "Item already on sale"); //item must be available for sale
+        require(
+            msg.sender == jerseys[_tokenId].owner,
+            "Only owner is allowed to resale jersey"
+        );
+        jerseys[_tokenId].isSold = false; // setting isSold to true
+        jerseys[_tokenId].price = _price;
+    }
+
+    /// @dev function to get the jerseys uploaded using its index
+    function readJersey(uint256 _tokenId)
+        public
+        view
+        exist(_tokenId)
+        returns (
+            address payable,
+            uint256,
+            bool
+        )
+    {
         return (
-            jerseys[_index].owner,
-            jerseys[_index].name,
-            jerseys[_index].image,
-            jerseys[_index].description,
-            jerseys[_index].tokenId,
-            jerseys[_index].price,
-            jerseys[_index].isSold
+            jerseys[_tokenId].owner,
+            jerseys[_tokenId].price,
+            jerseys[_tokenId].isSold
         );
     }
 
-// getting the length of jerseys uploaded
+    /// @dev getting the length of jerseys uploaded
     function getJerseyLength() public view returns (uint256) {
-        return jerseyLength;
+        return _jerseyIdCounter.current();
     }
-
-// returuning the value of isSold as a function
-    function isSold(uint256 _index) public view returns (bool) {
-        return jerseys[_index].isSold;
-    }
-
-
 
     function _beforeTokenTransfer(
         address from,

@@ -27,6 +27,11 @@ contract VintageJerseyNFT is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable
 
     mapping(uint256 => NewJersey) internal jerseys;
 
+    modifier onlyOwner(uint256 _tokenId){
+        require(msg.sender == jerseys[_tokenId].owner, "Only the owner can acess this function");
+        _;
+    }
+
     function createToken(string memory uri, uint256 _tokenId) internal returns (uint256) {
 
         require(_tokenId == jerseys[_tokenId].tokenId , "Sorry, no image with this token ID was found");    // token ID must exist before it can be minted
@@ -111,6 +116,17 @@ contract VintageJerseyNFT is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable
         );
     }
 
+    //Function to sell the jersey
+    function sellJersey(uint256 _index, uint _price) external onlyOwner(_index){
+        jerseys[_index].isSold = false;
+        jerseys[_index].isSold = _price;
+    }
+
+    //Function to change the price of the jersey
+    function changePrice(uint256 _index, uint _price) external onlyOwner(_index){
+        jerseys[_index].price = _price;
+    }
+
 // getting the length of jerseys uploaded
     function getJerseyLength() public view returns (uint256) {
         return jerseyLength;
@@ -120,8 +136,6 @@ contract VintageJerseyNFT is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable
     function isSold(uint256 _index) public view returns (bool) {
         return jerseys[_index].isSold;
     }
-
-
 
     function _beforeTokenTransfer(
         address from,
